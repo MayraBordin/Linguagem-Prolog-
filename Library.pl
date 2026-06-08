@@ -1,3 +1,6 @@
+% Sistema de Biblioteca Pessoal em Prolog.
+% Integrantes: Luana Thurow, Mayra Bordin e Sergio Duarte.
+
 %============ FATOS =============
 
 :- dynamic livro/4.
