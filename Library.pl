@@ -28,7 +28,7 @@ pessoa('Mayra', 2).
 pessoa('Sergio', 3).
 
 % emprestado(Titulo, IdentificadorPessoa, DataEmprestimo)
-emprestado('O Senhor dos Anéis', 1, '2024-06-01').
+emprestado('O Senhor dos Aneis', 1, '2024-06-01').
 
 %============ REGRAS =============
 
