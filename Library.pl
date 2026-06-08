@@ -1,5 +1,3 @@
-:- use_module(library(readutil)).
-
 %============ FATOS =============
 
 :- dynamic livro/4.
@@ -8,9 +6,9 @@
 :- dynamic emprestado/3.
 
 % livro(Titulo, Autor, Ano, Categoria)
-livro('O Senhor dos Anéis', 'J.R.R. Tolkien', 1954, 'Fantasia').
+livro('O Senhor dos Aneis', 'J.R.R. Tolkien', 1954, 'Fantasia').
 livro('1984', 'George Orwell', 1949, 'Distopia').
-livro('O Pequeno Príncipe', 'Antoine de Saint-Exupéry', 1943, 'Infantil').
+livro('O Pequeno Principe', 'Antoine de Saint-Exupéry', 1943, 'Infantil').
 livro('Dom Quixote', 'Miguel de Cervantes', 1605, 'Clássico').
 livro('A Guerra dos Tronos', 'George R.R. Martin', 1996, 'Fantasia').
 
@@ -81,7 +79,7 @@ iniciar :-
     write('6 - Livros emprestados por pessoa'), nl,
     write('7 - Listar livros antigos'), nl,
     write('0 - Sair'), nl,
-    write('Opcao: '),
+    write('Opcao: '), nl,
     read(Opcao),
     menu(Opcao),
     Opcao = 0.
@@ -89,93 +87,108 @@ iniciar :-
 %============ MENUS =============
 
 menu(1) :-
-    write('Autor: '),
+    write('Autor: '), nl,
     read(Autor),
 
-    findall(Titulo,
-            livros_por_autor(Autor, Titulo),
-            Lista),
-
-    write('Livros encontrados: '),
-    write(Lista), nl.
+    ( autor(Autor, _)
+      -> findall(Titulo,
+                 livros_por_autor(Autor, Titulo),
+                 Lista),
+         write('Livros encontrados: '),
+         write(Lista), nl
+      ;  write('Autor nao cadastrado.'), nl
+    ),
+    !.
 
 menu(2) :-
-    write('Titulo: '),
+    write('Titulo: '), nl,
     read(Titulo),
 
     ( disponivel(Titulo)
       -> write('Livro disponivel.'), nl
       ;  write('Livro emprestado ou inexistente.'), nl
-    ).
+    ),
+     !.
 
 menu(3) :-
-    write('Titulo: '),
+    write('Titulo: '), nl,
     read(Titulo),
 
-    write('Autor: '),
+    write('Autor: '), nl,
     read(Autor),
 
-    write('Ano: '),
+    write('Ano: '), nl,
     read(Ano),
 
-    write('Categoria: '),
+    write('Categoria: '), nl,
     read(Categoria),
 
     inserir_livro(Titulo, Autor, Ano, Categoria),
 
-    write('Livro inserido com sucesso!'), nl.
+    write('Livro inserido com sucesso!'), nl,
+     !.
 
 menu(4) :-
-    write('Titulo: '),
+    write('Titulo: '), nl,
     read(Titulo),
 
-    write('ID da pessoa: '),
+    write('ID da pessoa: '), nl,
     read(Id),
 
-    write('Data (AAAA-MM-DD): '),
+    write('Data (AAAA-MM-DD): '), nl,
     read(Data),
 
     ( emprestar_livro(Titulo, Id, Data)
       -> write('Emprestimo realizado!'), nl
       ;  write('Nao foi possivel realizar o emprestimo.'), nl
-    ).
+    ),
+     !.
 
 menu(5) :-
-    write('Titulo: '),
+    write('Titulo: '), nl,
     read(Titulo),
 
-    write('ID da pessoa: '),
+    write('ID da pessoa: '), nl,
     read(Id),
 
     ( devolver_livro(Titulo, Id)
       -> write('Livro devolvido!'), nl
       ;  write('Emprestimo nao encontrado.'), nl
-    ).
+    ),
+     !.
 
 menu(6) :-
-    write('Nome da pessoa: '),
+    write('Nome da pessoa: '), nl,
     read(Nome),
 
-    findall(Titulo,
-            livros_emprestados_por(Nome, Titulo),
-            Lista),
+    ( pessoa(Nome, _)
+      -> findall(Titulo,
+                 livros_emprestados_por(Nome, Titulo),
+                 Lista),
 
-    write('Livros emprestados: '),
-    write(Lista), nl.
+         ( Lista \= []
+           -> write('Livros emprestados: '),
+              write(Lista), nl
+           ;  write('Esta pessoa nao possui livros emprestados.'), nl
+         )
+      ;  write('Pessoa nao cadastrada.'), nl
+    ),
+    !.
 
 menu(7) :-
-    write('Ano maximo: '),
-    read(AnoMaximo),
+    write('Ano maximo: '), nl,
+    read(AnoMaximo), nl,
 
     findall(Titulo,
             livros_antigos(AnoMaximo, Titulo),
             Lista),
 
     write('Livros encontrados: '),
-    write(Lista), nl.
+    write(Lista), nl,
+     !.
 
 menu(0) :-
-    write('Sistema encerrado.'), nl.
+    write('Sistema encerrado.'), nl,
     halt.
 
 menu(_) :-
