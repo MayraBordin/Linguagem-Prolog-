@@ -82,8 +82,7 @@ iniciar :-
     write('7 - Listar livros antigos'), nl,
     write('0 - Sair'), nl,
     write('Opcao: '),
-    read_line_to_string(user_input, OpcaoStr),
-    number_string(Opcao, OpcaoStr),
+    read(Opcao),
     menu(Opcao),
     Opcao = 0.
 
@@ -91,7 +90,7 @@ iniciar :-
 
 menu(1) :-
     write('Autor: '),
-    read_line_to_string(user_input, Autor),
+    read(Autor),
 
     findall(Titulo,
             livros_por_autor(Autor, Titulo),
@@ -102,7 +101,7 @@ menu(1) :-
 
 menu(2) :-
     write('Titulo: '),
-    read_line_to_string(user_input, Titulo),
+    read(Titulo),
 
     ( disponivel(Titulo)
       -> write('Livro disponivel.'), nl
@@ -111,17 +110,16 @@ menu(2) :-
 
 menu(3) :-
     write('Titulo: '),
-    read_line_to_string(user_input, Titulo),
+    read(Titulo),
 
     write('Autor: '),
-    read_line_to_string(user_input, Autor),
+    read(Autor),
 
     write('Ano: '),
-    read_line_to_string(user_input, AnoStr),
-    number_string(Ano, AnoStr),
+    read(Ano),
 
     write('Categoria: '),
-    read_line_to_string(user_input, Categoria),
+    read(Categoria),
 
     inserir_livro(Titulo, Autor, Ano, Categoria),
 
@@ -129,14 +127,13 @@ menu(3) :-
 
 menu(4) :-
     write('Titulo: '),
-    read_line_to_string(user_input, Titulo),
+    read(Titulo),
 
     write('ID da pessoa: '),
-    read_line_to_string(user_input, IdStr),
-    number_string(Id, IdStr),
+    read(Id),
 
     write('Data (AAAA-MM-DD): '),
-    read_line_to_string(user_input, Data),
+    read(Data),
 
     ( emprestar_livro(Titulo, Id, Data)
       -> write('Emprestimo realizado!'), nl
@@ -145,11 +142,10 @@ menu(4) :-
 
 menu(5) :-
     write('Titulo: '),
-    read_line_to_string(user_input, Titulo),
+    read(Titulo),
 
     write('ID da pessoa: '),
-    read_line_to_string(user_input, IdStr),
-    number_string(Id, IdStr),
+    read(Id),
 
     ( devolver_livro(Titulo, Id)
       -> write('Livro devolvido!'), nl
@@ -158,7 +154,7 @@ menu(5) :-
 
 menu(6) :-
     write('Nome da pessoa: '),
-    read_line_to_string(user_input, Nome),
+    read(Nome),
 
     findall(Titulo,
             livros_emprestados_por(Nome, Titulo),
@@ -169,8 +165,7 @@ menu(6) :-
 
 menu(7) :-
     write('Ano maximo: '),
-    read_line_to_string(user_input, AnoStr),
-    number_string(AnoMaximo, AnoStr),
+    read(AnoMaximo),
 
     findall(Titulo,
             livros_antigos(AnoMaximo, Titulo),
@@ -181,6 +176,7 @@ menu(7) :-
 
 menu(0) :-
     write('Sistema encerrado.'), nl.
+    halt.
 
 menu(_) :-
     write('Opcao invalida!'), nl.
