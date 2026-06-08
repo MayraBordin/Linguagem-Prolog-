@@ -1,51 +1,186 @@
+:- use_module(library(readutil)).
+
 %============ FATOS =============
 
-%livro(Titulo, Autor, Ano, Categoria)
+:- dynamic livro/4.
+:- dynamic autor/2.
+:- dynamic pessoa/2.
+:- dynamic emprestado/3.
+
+% livro(Titulo, Autor, Ano, Categoria)
 livro('O Senhor dos Anéis', 'J.R.R. Tolkien', 1954, 'Fantasia').
 livro('1984', 'George Orwell', 1949, 'Distopia').
 livro('O Pequeno Príncipe', 'Antoine de Saint-Exupéry', 1943, 'Infantil').
 livro('Dom Quixote', 'Miguel de Cervantes', 1605, 'Clássico').
 livro('A Guerra dos Tronos', 'George R.R. Martin', 1996, 'Fantasia').
 
-%autor(Nome, Nacionalidade)
+% autor(Nome, Nacionalidade)
 autor('J.R.R. Tolkien', 'Reino Unido').
 autor('George Orwell', 'Reino Unido').
 autor('Antoine de Saint-Exupéry', 'França').
 autor('Miguel de Cervantes', 'Espanha').
 autor('George R.R. Martin', 'Estados Unidos').
 
-%pessoa(Nome, Identificador).
-pessoa('Alice', 1).
-pessoa('Bob', 2).
-pessoa('Charlie', 3).
+% pessoa(Nome, Identificador)
+pessoa('Luana', 1).
+pessoa('Mayra', 2).
+pessoa('Sergio', 3).
 
-%emprestado(Titulo, IdentificadorPessoa, DataEmprestimo).
+% emprestado(Titulo, IdentificadorPessoa, DataEmprestimo)
 emprestado('O Senhor dos Anéis', 1, '2024-06-01').
 
-%============ PREDICADOS =============
+%============ REGRAS =============
 
-livros_por_autor(Autor, Titulos) :-
-    findall(Titulo, livro(Titulo, Autor, _, _), Titulos).
+% livros_por_autor(Autor, Titulo)
+livros_por_autor(Autor, Titulo) :-
+    livro(Titulo, Autor, _, _).
 
+% livros_antigos(AnoMaximo, Titulo)
 livros_antigos(AnoMaximo, Titulo) :-
     livro(Titulo, _, Ano, _),
-    Ano < AnoMaximo.
+    Ano =< AnoMaximo.
 
+% disponivel(Titulo)
 disponivel(Titulo) :-
     livro(Titulo, _, _, _),
-    \+emprestado(Titulo, _, _).
+    \+ emprestado(Titulo, _, _).
 
+% livros_emprestados_por(NomePessoa, Titulo)
 livros_emprestados_por(NomePessoa, Titulo) :-
     pessoa(NomePessoa, Identificador),
     emprestado(Titulo, Identificador, _).
 
-inserir_livros(Titulo, Autor, Ano, Categoria) :-
+%============ ATUALIZAÇÕES =============
+
+% Inserir livro
+inserir_livro(Titulo, Autor, Ano, Categoria) :-
     assertz(livro(Titulo, Autor, Ano, Categoria)).
 
-emprestar_livros(Titulo, IdentificadorPessoa, DataEmprestimo) :-
+% Emprestar livro
+emprestar_livro(Titulo, IdentificadorPessoa, DataEmprestimo) :-
     livro(Titulo, _, _, _),
-    \+emprestado(Titulo, _, _),
+    pessoa(_, IdentificadorPessoa),
+    \+ emprestado(Titulo, _, _),
     assertz(emprestado(Titulo, IdentificadorPessoa, DataEmprestimo)).
 
-devolver_livros(Titulo, IdentificadorPessoa) :-
+% Devolver livro
+devolver_livro(Titulo, IdentificadorPessoa) :-
     retract(emprestado(Titulo, IdentificadorPessoa, _)).
+
+%============ INTERFACE TEXTUAL =============
+
+iniciar :-
+    repeat,
+    nl,
+    write('===== BIBLIOTECA PESSOAL ====='), nl,
+    write('1 - Listar livros por autor'), nl,
+    write('2 - Verificar disponibilidade'), nl,
+    write('3 - Inserir livro'), nl,
+    write('4 - Emprestar livro'), nl,
+    write('5 - Devolver livro'), nl,
+    write('6 - Livros emprestados por pessoa'), nl,
+    write('7 - Listar livros antigos'), nl,
+    write('0 - Sair'), nl,
+    write('Opcao: '),
+    read_line_to_string(user_input, OpcaoStr),
+    number_string(Opcao, OpcaoStr),
+    menu(Opcao),
+    Opcao = 0.
+
+%============ MENUS =============
+
+menu(1) :-
+    write('Autor: '),
+    read_line_to_string(user_input, Autor),
+
+    findall(Titulo,
+            livros_por_autor(Autor, Titulo),
+            Lista),
+
+    write('Livros encontrados: '),
+    write(Lista), nl.
+
+menu(2) :-
+    write('Titulo: '),
+    read_line_to_string(user_input, Titulo),
+
+    ( disponivel(Titulo)
+      -> write('Livro disponivel.'), nl
+      ;  write('Livro emprestado ou inexistente.'), nl
+    ).
+
+menu(3) :-
+    write('Titulo: '),
+    read_line_to_string(user_input, Titulo),
+
+    write('Autor: '),
+    read_line_to_string(user_input, Autor),
+
+    write('Ano: '),
+    read_line_to_string(user_input, AnoStr),
+    number_string(Ano, AnoStr),
+
+    write('Categoria: '),
+    read_line_to_string(user_input, Categoria),
+
+    inserir_livro(Titulo, Autor, Ano, Categoria),
+
+    write('Livro inserido com sucesso!'), nl.
+
+menu(4) :-
+    write('Titulo: '),
+    read_line_to_string(user_input, Titulo),
+
+    write('ID da pessoa: '),
+    read_line_to_string(user_input, IdStr),
+    number_string(Id, IdStr),
+
+    write('Data (AAAA-MM-DD): '),
+    read_line_to_string(user_input, Data),
+
+    ( emprestar_livro(Titulo, Id, Data)
+      -> write('Emprestimo realizado!'), nl
+      ;  write('Nao foi possivel realizar o emprestimo.'), nl
+    ).
+
+menu(5) :-
+    write('Titulo: '),
+    read_line_to_string(user_input, Titulo),
+
+    write('ID da pessoa: '),
+    read_line_to_string(user_input, IdStr),
+    number_string(Id, IdStr),
+
+    ( devolver_livro(Titulo, Id)
+      -> write('Livro devolvido!'), nl
+      ;  write('Emprestimo nao encontrado.'), nl
+    ).
+
+menu(6) :-
+    write('Nome da pessoa: '),
+    read_line_to_string(user_input, Nome),
+
+    findall(Titulo,
+            livros_emprestados_por(Nome, Titulo),
+            Lista),
+
+    write('Livros emprestados: '),
+    write(Lista), nl.
+
+menu(7) :-
+    write('Ano maximo: '),
+    read_line_to_string(user_input, AnoStr),
+    number_string(AnoMaximo, AnoStr),
+
+    findall(Titulo,
+            livros_antigos(AnoMaximo, Titulo),
+            Lista),
+
+    write('Livros encontrados: '),
+    write(Lista), nl.
+
+menu(0) :-
+    write('Sistema encerrado.'), nl.
+
+menu(_) :-
+    write('Opcao invalida!'), nl.
