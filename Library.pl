@@ -104,29 +104,35 @@ menu(2) :-
     write('Titulo: '), nl,
     read(Titulo),
 
-    ( disponivel(Titulo)
-      -> write('Livro disponivel.'), nl
-      ;  write('Livro emprestado ou inexistente.'), nl
+    ( livro(Titulo, _, _, _)
+      -> ( disponivel(Titulo)
+           -> write('Livro disponivel.'), nl
+           ;  write('Livro emprestado.'), nl
+         )
+      ;  write('Livro inexistente.'), nl
     ),
-     !.
+    !.
 
 menu(3) :-
     write('Titulo: '), nl,
     read(Titulo),
 
-    write('Autor: '), nl,
-    read(Autor),
+    ( livro(Titulo, _, _, _)
+      -> write('Livro ja cadastrado.'), nl
+      ;  write('Autor: '), nl,
+         read(Autor),
 
-    write('Ano: '), nl,
-    read(Ano),
+         write('Ano: '), nl,
+         read(Ano),
 
-    write('Categoria: '), nl,
-    read(Categoria),
+         write('Categoria: '), nl,
+         read(Categoria),
 
-    inserir_livro(Titulo, Autor, Ano, Categoria),
+         inserir_livro(Titulo, Autor, Ano, Categoria),
 
-    write('Livro inserido com sucesso!'), nl,
-     !.
+         write('Livro inserido com sucesso!'), nl
+    ),
+    !.
 
 menu(4) :-
     write('Titulo: '), nl,
@@ -177,15 +183,16 @@ menu(6) :-
 
 menu(7) :-
     write('Ano maximo: '), nl,
-    read(AnoMaximo), nl,
+    read(AnoMaximo),
 
-    findall(Titulo,
-            livros_antigos(AnoMaximo, Titulo),
+    findall((Titulo, Ano),
+            (livro(Titulo, _, Ano, _),
+             Ano =< AnoMaximo),
             Lista),
 
-    write('Livros encontrados: '),
+    write('Livros encontrados: '), nl,
     write(Lista), nl,
-     !.
+    !.
 
 menu(0) :-
     write('Sistema encerrado.'), nl,
